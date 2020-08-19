@@ -1,34 +1,35 @@
-# SFND 2D Feature Tracking
+## Implementation for Camera based 2D feature Tracking
 
-<img src="images/keypoints.png" width="820" height="248" />
+### Data Buffer
+* A ring data buffer was implemented by simply removing the first element using erase if the buffer size is maximum and then using push back to add the new element at the back of the buffer.
 
-The idea of the camera course is to build a collision detection system - that's the overall goal for the Final Project. As a preparation for this, you will now build the feature tracking part and test various detector / descriptor combinations to see which ones perform best. This mid-term project consists of four parts:
+### Keypoint Detection and keypoint removal
+* Detectors FAST, BRISK, ORB, AKAZE and SIFT were created using the OpenCV library. A separate function was implemented for HARRIS detector. First edges are detected using cornerHarris() function, then the edges are normalized and converted to an absolute scale. If the keypoints do not overlap the maximum value then the keypoint is added to the detection. 
+* The Keypoints were reduced to focus on the specific car in front for better performance of the methods
 
-* First, you will focus on loading images, setting up data structures and putting everything into a ring buffer to optimize memory load. 
-* Then, you will integrate several keypoint detectors such as HARRIS, FAST, BRISK and SIFT and compare them with regard to number of keypoints and speed. 
-* In the next part, you will then focus on descriptor extraction and matching using brute force and also the FLANN approach we discussed in the previous lesson. 
-* In the last part, once the code framework is complete, you will test the various algorithms in different combinations and compare them with regard to some performance measures. 
+### Descriptors
+* Descriptors BRIEF, ORB, FREAK, AKAZE and SIFT were implemented using the OpenCV library. Optimal input parametes were predefined for BRISK and SIFT descriptors.
+* FLANN matching method was implemented using the flann based Descriptor matching class in OpenCV.
+* Descriptor distance ratio test was implemented using the KNN matching method. If the distance between source and target keypoints is less than the product of the distance ratio and the distance of the target and source keypoints then the keypoints are added to matches. The distance ratio was set to 0.8.
 
-See the classroom instruction and code comments for more details on each of these parts. Once you are finished with this project, the keypoint matching part will be set up and you can proceed to the next lesson, where the focus is on integrating Lidar points and on object detection using deep-learning. 
+### Performance
+* The number of keypoints, matched keypoints and the time taken for keypoint detection and descriptor extraction on the preceding vehicle for all 10 images were noted.
+* Based on the data collected and considering the process time along with number of matched keypoints, the following 3 combinations can be recommended:
+1. FAST detector and ORB descriptor
+    - FAST detects on an average 1750 keypoints in about 1 
+    - Time for descriptor extraction averages 1 sec
+    - Matching Keypoints averages to 150 matches
+2. FAST detector and BRIEF descriptor
+    - FAST detects on an average 1750 keypoints in 1 sec
+    - Time for descriptor extraction averages 1.25 secs
+    - Matching Keypoints averages to 150 matches
+3. ORB detector and BRIEF descriptor
+    - ORB detects on an average 500 keypoints in 7 secs
+    - Time for descriptor extraction averages 0.85 secs
+    - Matching Keypoints averages to 110 matches
+4. Shitomasi detector and BRIEF descriptor
+    - Shitomasi detects on an average 1300 keypoints in 15 secs
+    - Time for descriptor extraction averages 1.25 secs
+    - Matching Keypoints averages to 110 matches
 
-## Dependencies for Running Locally
-* cmake >= 2.8
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* OpenCV >= 4.1
-  * This must be compiled from source using the `-D OPENCV_ENABLE_NONFREE=ON` cmake flag for testing the SIFT and SURF detectors.
-  * The OpenCV 4.1.0 source code can be found [here](https://github.com/opencv/opencv/tree/4.1.0)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
-
-## Basic Build Instructions
-
-1. Clone this repo.
-2. Make a build directory in the top level directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./2D_feature_tracking`.
+The performance evaluation for all the combinations of Detectors and Descriptors can be found in the spreadsheet.
